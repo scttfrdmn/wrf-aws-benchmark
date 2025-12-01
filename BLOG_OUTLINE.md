@@ -183,7 +183,7 @@ Meteorological fields compress differently:
 
 #### On-Premises HPC TCO (Total Cost of Ownership)
 
-**Scenario:** $6M capital investment for a dedicated research cluster
+**Scenario:** $6M total direct costs for a dedicated research cluster over 5 years
 
 **Hardware Configuration (academic pricing):**
 - 20× dual-socket compute nodes (~3,840 cores total)
@@ -194,13 +194,20 @@ Meteorological fields compress differently:
 
 **Direct Costs to Research Budget:**
 
-| Component | Annual Cost | Notes |
-|-----------|-------------|-------|
-| Hardware amortization | $1,200,000 | $6M / 5 years |
-| Maintenance contracts | $120,000 | ~10% of hardware annually |
-| System administrator (1 FTE) | $100,000 | Dedicated HPC admin |
-| Storage management | $50,000 | Backup systems, tape library |
-| **Research Budget Total** | **$1,470,000/yr** | **$122,500/month** |
+| Component | 5-Year Total | Annual Cost | Notes |
+|-----------|--------------|-------------|-------|
+| **Hardware (initial purchase):** | **$4,500,000** | - | Academic/university pricing |
+| - Compute nodes (20× dual-socket) | $2,500,000 | - | ~3,840 cores total, ~$125K/node |
+| - InfiniBand fabric (switches, cables) | $600,000 | - | 200 Gbps HDR interconnect |
+| - Parallel storage (500 TB Lustre) | $1,200,000 | - | Enterprise parallel filesystem |
+| - Head nodes, management, UPS, misc | $200,000 | - | Control & power infrastructure |
+| **Operating costs (annual):** | - | - | - |
+| - Maintenance contracts | $100,000/yr | $100,000 | ~8% of hardware value |
+| - System administrator (1 FTE) | $100,000/yr | $100,000 | Dedicated HPC admin |
+| - Storage admin & backup | $50,000/yr | $50,000 | Tape library, backup systems |
+| **5-Year Direct Total** | **$6,000,000** | **$1,200,000/yr** | **$100,000/month** |
+
+**Breakdown:** $4.5M upfront hardware + ($250K/yr operating × 5 years) = $6M total direct costs over 5-year lifecycle
 
 **Externalized Costs (paid by institution):**
 
@@ -212,14 +219,15 @@ Meteorological fields compress differently:
 | Network infrastructure | $50,000 | Campus connectivity, upgrades |
 | **Institutional Total** | **$552,500/yr** | **$46,000/month** |
 
-**True TCO:** $2,022,500/year = **$168,500/month**
+**True TCO:** $1,752,500/year = **$146,000/month**
 
 **The Capacity Planning Dilemma:**
 
 On-premises requires upfront capacity decisions with no good answers:
 
 **Option A: Size for Regional Only** (~1,920 cores, 10 nodes)
-- Cost: ~$3M capital, $84K/month TCO, $30K/month allocated
+- **Direct costs:** ~$3M over 5 years = $50K/month
+- **True TCO:** $73K/month (with power, cooling, space)
 - Can run 2×/day regional forecasts efficiently
 - **Problem:** When severe weather develops, you must STOP regional forecasts to run WoFS
 - Miss tomorrow's regional forecast to handle today's event
@@ -228,14 +236,16 @@ On-premises requires upfront capacity decisions with no good answers:
 - **Utilization:** ~60% overall, but 0% when you need surge capacity
 
 **Option B: Size for Regional + 1 WoFS** (~3,840 cores, 20 nodes)
-- Cost: ~$6M capital, $168K/month TCO, $60K/month allocated
+- **Direct costs:** ~$6M over 5 years = $100K/month
+- **True TCO:** $146K/month (with power, cooling, space)
 - Can run regional + one WoFS simultaneously
 - **Problem:** WoFS nodes sit idle 90% of the time (only 4 events/month)
 - What if you need 2 WoFS events simultaneously? (Texas AND Oklahoma outbreak)
 - **Utilization:** ~35% overall (WoFS capacity mostly idle)
 
 **Option C: Size for Regional + 4 Concurrent WoFS** (~13,440 cores, 70 nodes)
-- Cost: ~$21M capital, $525K/month TCO, $189K/month allocated
+- **Direct costs:** ~$21M over 5 years = $350K/month
+- **True TCO:** $511K/month (with power, cooling, space)
 - Can handle multiple simultaneous severe weather events
 - **Problem:** 75% of cluster capacity sits idle waiting for events that may never happen
 - **Utilization:** ~15% overall (massive idle capacity "just in case")
@@ -259,12 +269,13 @@ No capacity planning dilemma. Period.
 **Cost for capacity you don't use:** $0
 **Time to add capacity:** 2-3 minutes (instance launch time)
 
-You pay ~$60K on-prem whether it's April (10 severe weather events) or January (zero events). On AWS, you pay $23-35K depending on actual need.
+You pay $100K/month on-prem (direct costs) whether it's April (10 severe weather events) or January (zero events). On AWS, you pay $23-35K depending on actual need.
 
 **For this workload specifically:**
 - Running 2×/day regional + 4 WoFS events/month
 - On-prem Option B utilization: ~35% (12-15 hours/day active)
-- **Effective monthly cost allocated to this workload:** ~$60,000
+- **Direct cost allocated to this workload:** $100K/month
+- **True TCO:** $146K/month
 - **But you're locked into that capacity and can't surge for simultaneous events**
 
 #### National HPC Systems (NOAA, NCAR, XSEDE)
@@ -312,24 +323,26 @@ National systems appear "free" to researchers with allocations, but:
 | Option | Monthly Cost | Concurrent Regional + WoFS? | Surge Capacity? | What's Included | What's Excluded |
 |--------|--------------|-----------------------------|-----------------|-----------------|-----------------|
 | **AWS** | **$26,400** | ✅ Yes, unlimited | ✅ Yes, 2-3 min | Compute, storage, network, data | Nothing |
-| **On-Prem Option A** | **$30,000** | ❌ No, must stop regional | ❌ No | Compute, storage, network, admin | Power, cooling, space ($15K) |
-| **On-Prem Option B** | **$60,000** | ✅ Yes, 1 WoFS only | ❌ No | Compute, storage, network, admin | Power, cooling, space ($23K) |
-| **On-Prem Option C** | **$189,000** | ✅ Yes, 4 WoFS max | ❌ No, fixed at 4 | Everything | Nothing |
-| **On-Prem B (true TCO)** | **$168,500** | ✅ Yes, 1 WoFS only | ❌ No | Everything | Nothing |
+| **On-Prem Option A** | **$50,000** | ❌ No, must stop regional | ❌ No | Compute, storage, network, admin | Power, cooling, space ($23K) |
+| **On-Prem Option B** | **$100,000** | ✅ Yes, 1 WoFS only | ❌ No | Compute, storage, network, admin | Power, cooling, space ($46K) |
+| **On-Prem Option C** | **$350,000** | ✅ Yes, 4 WoFS max | ❌ No, fixed at 4 | Compute, storage, network, admin | Power, cooling, space ($161K) |
+| **On-Prem A (true TCO)** | **$73,000** | ❌ No, must stop regional | ❌ No | Everything | Nothing |
+| **On-Prem B (true TCO)** | **$146,000** | ✅ Yes, 1 WoFS only | ❌ No | Everything | Nothing |
+| **On-Prem C (true TCO)** | **$511,000** | ✅ Yes, 4 WoFS max | ❌ No, fixed at 4 | Everything | Nothing |
 | **National Systems** | **$0** | ❌ Allocation limits | ❌ Not available | Compute, storage, network | Queue wait, no guarantees |
 
 **Critical Insights:**
 
-1. **On-prem Option A** ($30K): Cheapest on-prem, but **can't run regional and WoFS simultaneously**. Must choose between maintaining routine monitoring or responding to severe weather.
+1. **On-prem Option A** ($50K direct, $73K TCO): Cheapest on-prem, but **can't run regional and WoFS simultaneously**. Must choose between maintaining routine monitoring or responding to severe weather.
 
-2. **On-prem Option B** ($60K allocated, $168K TCO): Can run regional + one WoFS, but:
+2. **On-prem Option B** ($100K direct, $146K TCO): Can run regional + one WoFS, but:
    - 65% of WoFS capacity sits idle most of the time
    - Can't handle multiple simultaneous severe weather events
    - Fixed cost regardless of actual severe weather activity
 
-3. **On-prem Option C** ($189K allocated): Can handle 4 concurrent WoFS, but:
+3. **On-prem Option C** ($350K direct, $511K TCO): Can handle 4 concurrent WoFS, but:
    - 85% of capacity idle most of the time
-   - 7× more expensive than AWS
+   - 13× more expensive than AWS (direct costs)
    - Still has a ceiling (what about 5 simultaneous events?)
 
 4. **AWS** ($23-35K depending on month):
@@ -337,12 +350,12 @@ National systems appear "free" to researchers with allocations, but:
    - Adds WoFS capacity on-demand as needed
    - No practical limit on simultaneous events
    - Scales cost with actual severe weather activity
-   - **44% cheaper** than on-prem Option B (most comparable)
-   - **70% cheaper** than on-prem Option B true TCO
+   - **74% cheaper** than on-prem Option B direct costs ($100K)
+   - **82% cheaper** than on-prem Option B true TCO ($146K)
 
 **The Real Comparison:**
-- **Active severe weather month** (April, May): AWS $33K vs On-prem $60-189K
-- **Quiet winter month** (January): AWS $23K vs On-prem $60-189K (same fixed cost)
+- **Active severe weather month** (April, May): AWS $33K vs On-prem $100-350K (direct)
+- **Quiet winter month** (January): AWS $23K vs On-prem $100-350K (same fixed cost)
 - **Annual variability:** AWS tracks severe weather seasons; on-prem pays same cost year-round
 
 ---
@@ -355,26 +368,26 @@ National systems appear "free" to researchers with allocations, but:
 
 **You spend the money upfront, whether you use it or not:**
 
-**Annual Budget: $1,470,000** (Option B: Regional + 1 WoFS)
+**Annual Budget: $1,200,000** (Option B: Regional + 1 WoFS)
 
-| Month | Severe Weather Events | Capacity Used | Cost Paid | Wasted Capacity |
+| Month | Severe Weather Events | Capacity Used | Cost Paid | Idle Capacity Cost |
 |-------|----------------------|---------------|-----------|-----------------|
-| January | 0 | ~15% (regional only) | $122,500 | **$104,125** (85% idle) |
-| February | 1 | ~35% | $122,500 | $79,625 |
-| March | 2 | ~55% | $122,500 | $55,125 |
-| **April** | **8** | **Would need 100%+** | $122,500 | **-$98,000 (over capacity!)** |
-| May | 6 | Would need 90%+ | $122,500 | -$49,000 |
-| June | 3 | ~65% | $122,500 | $42,875 |
-| July | 2 | ~55% | $122,500 | $55,125 |
-| August | 1 | ~35% | $122,500 | $79,625 |
-| September | 1 | ~35% | $122,500 | $79,625 |
-| October | 1 | ~35% | $122,500 | $79,625 |
-| November | 0 | ~15% | $122,500 | $104,125 |
-| December | 0 | ~15% | $122,500 | $104,125 |
-| **TOTAL** | **25 events** | **Avg ~40%** | **$1,470,000** | **$588,000 wasted** |
+| January | 0 | ~15% (regional only) | $100,000 | **$85,000** (85% idle) |
+| February | 1 | ~35% | $100,000 | $65,000 |
+| March | 2 | ~55% | $100,000 | $45,000 |
+| **April** | **8** | **Would need 100%+** | $100,000 | **-$80,000 (over capacity!)** |
+| May | 6 | Would need 90%+ | $100,000 | -$40,000 |
+| June | 3 | ~65% | $100,000 | $35,000 |
+| July | 2 | ~55% | $100,000 | $45,000 |
+| August | 1 | ~35% | $100,000 | $65,000 |
+| September | 1 | ~35% | $100,000 | $65,000 |
+| October | 1 | ~35% | $100,000 | $65,000 |
+| November | 0 | ~15% | $100,000 | $85,000 |
+| December | 0 | ~15% | $100,000 | $85,000 |
+| **TOTAL** | **25 events** | **Avg ~40%** | **$1,200,000** | **$480,000 unutilized** |
 
 **Problems:**
-- **$588K wasted on idle capacity** waiting for severe weather that doesn't happen
+- **$480K spent on unutilized capacity** waiting for severe weather that doesn't happen
 - **Can't handle April/May peak load** - must turn away critical forecasts OR stop regional monitoring
 - **No flexibility:** Same cost whether 0 events or 25 events
 - **Sunk cost:** Already spent, can't redirect budget to other research needs
@@ -384,38 +397,38 @@ National systems appear "free" to researchers with allocations, but:
 
 **You keep the money in your budget until you actually need it:**
 
-**Annual Budget Available: $1,470,000**
+**Annual Budget Available: $1,200,000**
 
 | Month | Severe Weather Events | Actual Cost | Budget Remaining |
 |-------|----------------------|-------------|------------------|
-| January | 0 | $23,000 | $1,447,000 |
-| February | 1 | $24,000 | $1,423,000 |
-| March | 2 | $25,000 | $1,398,000 |
-| **April** | **8** | **$35,000** | $1,363,000 |
-| May | 6 | $33,000 | $1,330,000 |
-| June | 3 | $27,000 | $1,303,000 |
-| July | 2 | $25,000 | $1,278,000 |
-| August | 1 | $24,000 | $1,254,000 |
-| September | 1 | $24,000 | $1,230,000 |
-| October | 1 | $24,000 | $1,206,000 |
-| November | 0 | $23,000 | $1,183,000 |
-| December | 0 | $23,000 | $1,160,000 |
-| **TOTAL** | **25 events** | **$310,000** | **$1,160,000 saved!** |
+| January | 0 | $23,000 | $1,177,000 |
+| February | 1 | $24,000 | $1,153,000 |
+| March | 2 | $25,000 | $1,128,000 |
+| **April** | **8** | **$35,000** | $1,093,000 |
+| May | 6 | $33,000 | $1,060,000 |
+| June | 3 | $27,000 | $1,033,000 |
+| July | 2 | $25,000 | $1,008,000 |
+| August | 1 | $24,000 | $984,000 |
+| September | 1 | $24,000 | $960,000 |
+| October | 1 | $24,000 | $936,000 |
+| November | 0 | $23,000 | $913,000 |
+| December | 0 | $23,000 | $890,000 |
+| **TOTAL** | **25 events** | **$310,000** | **$890,000 preserved!** |
 
 **Advantages:**
-- **$1.16M still in your budget** at year end
-- **79% of budget unspent** and available for other research priorities
+- **$890K still in your budget** at year end
+- **74% of budget unspent** and available for other research priorities
 - **Perfect elasticity:** April spike costs $35K, handled without issues
-- **No wasted capacity:** Pay only for what you actually use
+- **No idle capacity costs:** Pay only for what you actually use
 - **No constraints:** Can handle 25 events, 50 events, or 100 events - budget scales naturally
 - **Storage:** Pay for actual data generated, not provisioned capacity
 
-#### What Can You Do With $1.16M?
+#### What Can You Do With $890K?
 
 That's not "savings" in the abstract - **it's research you can actually do:**
 
-- Fund 11 PhD students for a year
-- Run an additional 45 WoFS events (4× more severe weather coverage)
+- Fund 8-9 PhD students for a year
+- Run an additional 33 WoFS events (4× more severe weather coverage)
 - Add GPU-accelerated physics testing
 - Implement full data assimilation (GSI/EnKF) in the WoFS workflow
 - Build a real-time decision support system with the forecast output
@@ -430,7 +443,7 @@ That's not "savings" in the abstract - **it's research you can actually do:**
 - Budget is **pre-spent** (capital + annual maintenance locked in)
 - Optimization goal: **maximize utilization** to justify the investment
 - Result: **Over-provision** to avoid being capacity-constrained
-- Idle capacity is **wasted money you can never get back**
+- Idle capacity represents **sunk costs that can't be recovered or reallocated**
 
 **AWS:**
 - Capacity is **deploy-when-needed**
@@ -438,6 +451,10 @@ That's not "savings" in the abstract - **it's research you can actually do:**
 - Optimization goal: **match spending to actual needs**
 - Result: **Right-size dynamically** based on real-time requirements
 - Unspent budget is **available for other research opportunities**
+- **Hardware continuously upgraded:** Automatic access to newer/faster instances at same or lower cost
+- **Price-performance improvements over time:** Same $26K/month buys more compute as AWS updates hardware
+- **Technology flexibility:** Can add GPUs (p5.48xlarge), ARM processors (Graviton), or accelerators without capital investment
+- **No refresh cycles:** On-prem must budget for hardware replacement every 5 years; AWS handles this automatically
 
 **This is why cloud computing is transformative for bursty, event-driven research workloads.**
 

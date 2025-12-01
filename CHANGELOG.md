@@ -39,6 +39,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced "time to science" with "time to result" throughout documentation
 - Expanded blog Section 6 (Cost) from 600 to 1500 words with detailed TCO analysis
 - Reframed cost comparisons to be transparent about funding models and hidden costs
+- Corrected on-prem costing: $6M now covers ALL direct costs over 5 years (not just hardware)
+  * Hardware: $4.5M (compute $2.5M, InfiniBand $600K, storage $1.2M, misc $200K)
+  * Operating: $250K/year × 5 years = $1.5M
+  * Total: $6M = $1.2M/year = $100K/month direct costs
+- Replaced "wasted" with more diplomatic "unutilized" or "idle capacity costs"
+- Updated all cost comparison tables with corrected $100K/month on-prem direct costs
+- Updated budget efficiency section: $890K preserved (74%) vs $480K unutilized on-prem
+- Added AWS advantages: continuous hardware upgrades, price-performance improvements, technology flexibility (GPUs), no refresh cycles
 
 ## [0.1.0] - 2025-12-01
 
