@@ -13,9 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Workflow triggering documentation for both manual and automated approaches
 - Multiple WoFS automation options (forecast analysis, Lambda, observation monitoring, SPC watch integration)
 - Cron scheduling examples for routine regional forecasts
+- Comprehensive cost comparison section in blog outline with three scenarios:
+  * AWS pay-as-you-go model with detailed breakdown
+  * On-premises TCO analysis using $6M academic budget scenario
+  * National HPC systems allocation constraints and suitability
+- Transparent cost accounting separating direct research costs from institutional costs (power, cooling, facilities)
+- Fair comparison framework showing what's included/excluded in each option
+- Utilization-adjusted cost analysis for event-driven workloads
+- Analysis of why event-driven severe weather workloads don't fit national systems
 
 ### Changed
 - Replaced "time to science" with "time to result" throughout documentation
+- Expanded blog Section 6 (Cost) from 600 to 1000 words with detailed TCO analysis
+- Reframed cost comparisons to be transparent about funding models and hidden costs
 
 ## [0.1.0] - 2025-12-01
 
