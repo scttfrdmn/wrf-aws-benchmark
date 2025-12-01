@@ -1,0 +1,93 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.log
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# WRF/NWP specific
+wrfout_*
+wrfrst_*
+wrfbdy_*
+wrfinput_*
+wrflowinp_*
+rsl.*.0000*
+*.grib*
+*.grb*
+*.nc
+*.NC
+fort.*
+
+# Benchmark results and temporary data
+results/
+runs/
+input/
+data/
+scratch/
+*.tmp
+*.bak
+
+# Generated configuration files
+infrastructure/cluster-config.yaml.generated
+infrastructure/*.tmp
+
+# AWS credentials and secrets
+*.pem
+*.key
+credentials
+.aws/
+.env
+secrets/
+
+# Compressed files
+*.tar.gz
+*.tar.bz2
+*.zip
+*.gz
+
+# SLURM output
+slurm-*.out
+slurm-*.err
+*.out
+*.err
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Generated documentation
+_build/
+docs/_build/
+
+# Keep results/.gitkeep but ignore everything else in results
+!results/.gitkeep

@@ -1,0 +1,103 @@
+Region: us-east-2
+Image:
+  Os: alinux2
+
+HeadNode:
+  InstanceType: c6a.4xlarge  # Match compute architecture for Spack compatibility
+  Networking:
+    SubnetId: subnet-REPLACE_ME
+    ElasticIp: false
+  LocalStorage:
+    RootVolume:
+      Size: 100
+      VolumeType: gp3
+  Ssh:
+    KeyName: REPLACE_ME
+  Iam:
+    AdditionalIamPolicies:
+      - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      - Policy: arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+  CustomActions:
+    OnNodeConfigured:
+      Script: s3://REPLACE_BUCKET/scripts/head_node_setup.sh
+
+Scheduling:
+  Scheduler: slurm
+  SlurmSettings:
+    ScaledownIdletime: 10
+    EnableMemoryBasedScheduling: true
+  SlurmQueues:
+    # Primary compute queue for WRF
+    - Name: hpc
+      ComputeResources:
+        - Name: hpc7a-96
+          InstanceType: hpc7a.96xlarge
+          MinCount: 0
+          MaxCount: 20  # Up to 3,840 cores
+          Efa:
+            Enabled: true
+          DisableSimultaneousMultithreading: true
+      Networking:
+        SubnetIds:
+          - subnet-REPLACE_ME
+        PlacementGroup:
+          Enabled: true
+      ComputeSettings:
+        LocalStorage:
+          RootVolume:
+            Size: 100
+            VolumeType: gp3
+    
+    # Smaller queue for I/O-heavy workloads or testing
+    - Name: hpc-small
+      ComputeResources:
+        - Name: hpc7a-48
+          InstanceType: hpc7a.48xlarge
+          MinCount: 0
+          MaxCount: 10
+          Efa:
+            Enabled: true
+          DisableSimultaneousMultithreading: true
+      Networking:
+        SubnetIds:
+          - subnet-REPLACE_ME
+        PlacementGroup:
+          Enabled: true
+
+SharedStorage:
+  # FSx Lustre for high-performance parallel I/O
+  - MountDir: /fsx
+    Name: lustre
+    StorageType: FsxLustre
+    FsxLustreSettings:
+      StorageCapacity: 4800  # 4.8 TiB minimum for good performance
+      DeploymentType: PERSISTENT_2
+      PerUnitStorageThroughput: 250  # MB/s per TiB
+      DataCompressionType: LZ4  # Enable for Lustre compression scenarios
+      # For baseline/netcdf-only tests, create a separate cluster without this
+  
+  # EFS for shared home directories and scripts (persists across cluster rebuilds)
+  - MountDir: /shared
+    Name: shared
+    StorageType: Efs
+    EfsSettings:
+      PerformanceMode: generalPurpose
+      ThroughputMode: elastic
+
+Tags:
+  - Key: Project
+    Value: wrf-benchmark
+  - Key: Environment
+    Value: research
+  - Key: CostCenter
+    Value: REPLACE_ME
+
+Monitoring:
+  DetailedMonitoring: true
+  Logs:
+    CloudWatch:
+      Enabled: true
+      RetentionInDays: 14
+  Dashboards:
+    CloudWatch:
+      Enabled: true
