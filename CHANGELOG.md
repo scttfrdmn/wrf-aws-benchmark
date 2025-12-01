@@ -34,5 +34,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This CHANGELOG following Keep a Changelog format
 - Semantic Versioning 2.0.0 practices with VERSION file
 
-[Unreleased]: https://github.com/your-org/wrf-aws-benchmark/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/your-org/wrf-aws-benchmark/releases/tag/v0.1.0
+[Unreleased]: https://github.com/scttfrdmn/wrf-aws-benchmark/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/scttfrdmn/wrf-aws-benchmark/releases/tag/v0.1.0

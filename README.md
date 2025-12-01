@@ -100,7 +100,7 @@ wrf-aws-benchmark/
 
 ```bash
 # 1. Clone this repository
-git clone https://github.com/your-org/wrf-aws-benchmark.git
+git clone https://github.com/scttfrdmn/wrf-aws-benchmark.git
 cd wrf-aws-benchmark
 
 # 2. Request AWS quotas (do this first - takes 1-5 business days)
