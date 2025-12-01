@@ -28,10 +28,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Detailed comparison showing AWS can run unlimited concurrent workloads
 - Monthly cost variability analysis (active vs quiet severe weather months)
 - Seasonal cost scaling advantage of cloud (AWS tracks weather patterns, on-prem fixed cost)
+- "Budget Efficiency: Use-or-Lose vs Bank-and-Deploy" section:
+  * Month-by-month comparison showing on-prem wasted capacity ($588K/year)
+  * AWS bank-and-deploy model preserves $1.16M of $1.47M budget (79% unspent)
+  * Concrete examples of research enabled by unspent budget (11 PhD students, 45 more events, etc.)
+  * Fundamental difference: on-prem = pre-spent & use-or-lose, AWS = preserved until used
+  * Storage: on-prem 500TB fixed provisioning vs AWS pay-for-actual-use
 
 ### Changed
 - Replaced "time to science" with "time to result" throughout documentation
-- Expanded blog Section 6 (Cost) from 600 to 1000 words with detailed TCO analysis
+- Expanded blog Section 6 (Cost) from 600 to 1500 words with detailed TCO analysis
 - Reframed cost comparisons to be transparent about funding models and hidden costs
 
 ## [0.1.0] - 2025-12-01

@@ -153,7 +153,7 @@ Meteorological fields compress differently:
 
 ---
 
-## Section 6: The Results - Cost (1000 words)
+## Section 6: The Results - Cost (1500 words)
 
 ### AWS Per-Forecast Costs
 
@@ -344,6 +344,104 @@ National systems appear "free" to researchers with allocations, but:
 - **Active severe weather month** (April, May): AWS $33K vs On-prem $60-189K
 - **Quiet winter month** (January): AWS $23K vs On-prem $60-189K (same fixed cost)
 - **Annual variability:** AWS tracks severe weather seasons; on-prem pays same cost year-round
+
+---
+
+### Budget Efficiency: Use-or-Lose vs Bank-and-Deploy
+
+**This is the fundamental difference between capital infrastructure and cloud computing.**
+
+#### On-Premises: Use-or-Lose Capacity
+
+**You spend the money upfront, whether you use it or not:**
+
+**Annual Budget: $1,470,000** (Option B: Regional + 1 WoFS)
+
+| Month | Severe Weather Events | Capacity Used | Cost Paid | Wasted Capacity |
+|-------|----------------------|---------------|-----------|-----------------|
+| January | 0 | ~15% (regional only) | $122,500 | **$104,125** (85% idle) |
+| February | 1 | ~35% | $122,500 | $79,625 |
+| March | 2 | ~55% | $122,500 | $55,125 |
+| **April** | **8** | **Would need 100%+** | $122,500 | **-$98,000 (over capacity!)** |
+| May | 6 | Would need 90%+ | $122,500 | -$49,000 |
+| June | 3 | ~65% | $122,500 | $42,875 |
+| July | 2 | ~55% | $122,500 | $55,125 |
+| August | 1 | ~35% | $122,500 | $79,625 |
+| September | 1 | ~35% | $122,500 | $79,625 |
+| October | 1 | ~35% | $122,500 | $79,625 |
+| November | 0 | ~15% | $122,500 | $104,125 |
+| December | 0 | ~15% | $122,500 | $104,125 |
+| **TOTAL** | **25 events** | **Avg ~40%** | **$1,470,000** | **$588,000 wasted** |
+
+**Problems:**
+- **$588K wasted on idle capacity** waiting for severe weather that doesn't happen
+- **Can't handle April/May peak load** - must turn away critical forecasts OR stop regional monitoring
+- **No flexibility:** Same cost whether 0 events or 25 events
+- **Sunk cost:** Already spent, can't redirect budget to other research needs
+- **Storage:** 500 TB provisioned even if you only use 100 TB some months
+
+#### AWS: Bank-and-Deploy Model
+
+**You keep the money in your budget until you actually need it:**
+
+**Annual Budget Available: $1,470,000**
+
+| Month | Severe Weather Events | Actual Cost | Budget Remaining |
+|-------|----------------------|-------------|------------------|
+| January | 0 | $23,000 | $1,447,000 |
+| February | 1 | $24,000 | $1,423,000 |
+| March | 2 | $25,000 | $1,398,000 |
+| **April** | **8** | **$35,000** | $1,363,000 |
+| May | 6 | $33,000 | $1,330,000 |
+| June | 3 | $27,000 | $1,303,000 |
+| July | 2 | $25,000 | $1,278,000 |
+| August | 1 | $24,000 | $1,254,000 |
+| September | 1 | $24,000 | $1,230,000 |
+| October | 1 | $24,000 | $1,206,000 |
+| November | 0 | $23,000 | $1,183,000 |
+| December | 0 | $23,000 | $1,160,000 |
+| **TOTAL** | **25 events** | **$310,000** | **$1,160,000 saved!** |
+
+**Advantages:**
+- **$1.16M still in your budget** at year end
+- **79% of budget unspent** and available for other research priorities
+- **Perfect elasticity:** April spike costs $35K, handled without issues
+- **No wasted capacity:** Pay only for what you actually use
+- **No constraints:** Can handle 25 events, 50 events, or 100 events - budget scales naturally
+- **Storage:** Pay for actual data generated, not provisioned capacity
+
+#### What Can You Do With $1.16M?
+
+That's not "savings" in the abstract - **it's research you can actually do:**
+
+- Fund 11 PhD students for a year
+- Run an additional 45 WoFS events (4× more severe weather coverage)
+- Add GPU-accelerated physics testing
+- Implement full data assimilation (GSI/EnKF) in the WoFS workflow
+- Build a real-time decision support system with the forecast output
+- Expand to additional domains (Southeast US, Great Plains)
+- Archive 10+ years of forecast output for ML training
+- **All of the above**
+
+#### The Fundamental Difference
+
+**On-Premises:**
+- Capacity is **use-or-lose**
+- Budget is **pre-spent** (capital + annual maintenance locked in)
+- Optimization goal: **maximize utilization** to justify the investment
+- Result: **Over-provision** to avoid being capacity-constrained
+- Idle capacity is **wasted money you can never get back**
+
+**AWS:**
+- Capacity is **deploy-when-needed**
+- Budget is **preserved until used** (pay-as-you-go)
+- Optimization goal: **match spending to actual needs**
+- Result: **Right-size dynamically** based on real-time requirements
+- Unspent budget is **available for other research opportunities**
+
+**This is why cloud computing is transformative for bursty, event-driven research workloads.**
+
+---
 
 ### When Each Option Makes Sense
 
