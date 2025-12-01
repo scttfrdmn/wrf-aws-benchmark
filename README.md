@@ -36,6 +36,26 @@ All input data comes from AWS Open Data or free APIs:
 | Satellite | GOES-18/19 | `s3://noaa-goes18`, `s3://noaa-goes19` |
 | Surface obs | Synoptic API | Free tier (5M units/month) |
 
+### Input Data Requirements
+
+**Approximate data volumes per forecast:**
+
+| Workload | HRRR/GFS | Radar (MRMS) | Satellite (GOES) | Total Input |
+|----------|----------|--------------|------------------|-------------|
+| Regional (48h) | ~8 GB | ~2-3 GB | ~5-8 GB (optional) | ~15-20 GB |
+| WoFS (6h cycle) | ~2 GB | ~1 GB | ~2-3 GB (optional) | ~5-6 GB |
+| Full WoFS event (24 cycles) | ~10 GB | ~5-6 GB | ~10-15 GB (optional) | ~25-30 GB |
+
+**Storage Strategy:**
+
+Input data can be pulled directly from AWS Open Data **as needed** using the `scripts/fetch_data.sh` script. Since you're running on AWS EC2, there are **no egress charges** for accessing data within the same region.
+
+However, for operational workflows with frequent runs:
+- **FSx Lustre** can be configured with S3 data repository integration to cache frequently accessed data
+- The cluster configuration provisions Lustre primarily for **output data** (which is much larger: 300-1300 GB per regional forecast)
+- Input data can be cached on Lustre if desired, but it's more cost-effective to fetch on-demand from Open Data
+- Static data (WPS_GEOG) should be stored on the persistent EFS volume (~50 GB)
+
 ## Compression Benchmark Scenarios
 
 | Scenario | Description | Expected Compression | CPU Overhead |
@@ -122,6 +142,68 @@ python3 compression/analyze_results.py --output results/
 
 **Compression savings**: 25-40% reduction in storage costs with NetCDF level 1
 
+## Workflow Triggering
+
+### Regional Forecasts (Routine)
+
+Regional forecasts run on a fixed schedule (e.g., 2×/day) and can be triggered:
+
+**Manually:**
+```bash
+./workflows/run_benchmark.sh --workload regional --scenarios baseline
+```
+
+**Automated with cron:**
+```bash
+# On the cluster head node, add to crontab:
+0 0,12 * * * cd /fsx/benchmark && ./workflows/run_benchmark.sh --workload regional --date $(date -u +\%Y\%m\%d) --cycle $(date -u +\%H)
+```
+
+### WoFS Workloads (Event-Driven)
+
+WoFS storm-scale forecasts are designed to be triggered when severe weather is identified. There are several approaches:
+
+**Manual Triggering:**
+```bash
+# Start a WoFS event
+./workflows/run_benchmark.sh --workload wofs --scenarios baseline
+```
+
+**Automated Triggering Options:**
+
+1. **Regional Forecast Analysis** - Monitor regional forecast output for severe weather indicators:
+   ```bash
+   # After regional run completes, analyze for triggers
+   python3 scripts/check_severe_weather_triggers.py \
+     --input /fsx/benchmark/results/latest/regional \
+     --threshold "CAPE>2000,SHR6>40" \
+     --bbox "-104,28,-94,36"
+
+   # If triggers met, launch WoFS
+   if [ $? -eq 0 ]; then
+     sbatch workflows/wofs_cycle.slurm
+   fi
+   ```
+
+2. **AWS Lambda + EventBridge** - Use serverless functions to monitor forecasts:
+   - Lambda function checks S3 for new regional forecast output
+   - Analyzes severe weather parameters
+   - Triggers WoFS via AWS Batch or ParallelCluster API when thresholds met
+
+3. **Real-time Observation Monitoring** - Monitor MRMS radar or SPC products:
+   ```bash
+   # Poll MRMS for mesocyclone detections
+   python3 scripts/monitor_mrms_mda.py --region texas --threshold 50
+   ```
+
+4. **SPC/NWS Watch Integration** - Trigger when SPC issues watches:
+   ```bash
+   # Check SPC API for active watches in domain
+   python3 scripts/check_spc_watches.py --bbox "-104,28,-94,36"
+   ```
+
+**Note:** Automated trigger scripts are not included in v0.1.0 but can be added based on your operational needs. The framework supports manual or scripted triggering of any workload.
+
 ## Hardware Requirements
 
 ### AWS Quotas Needed
@@ -146,7 +228,7 @@ python3 compression/analyze_results.py --output results/
 3. **Compression ratios** achieved with each strategy
 4. **I/O bandwidth** utilization
 5. **Scaling efficiency** (weak and strong scaling)
-6. **Time to science** (cluster creation → first forecast)
+6. **Time to result** (cluster creation → first forecast)
 
 ## Versioning
 

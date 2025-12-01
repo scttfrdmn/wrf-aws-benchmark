@@ -47,7 +47,7 @@ A researcher monitoring severe weather across the South Central US who needs to 
 
 ## Section 3: Setting Up the Environment (600 words)
 
-**Time to first forecast**: ~45 minutes from nothing to running WRF
+**Time to result**: ~45 minutes from nothing to running WRF
 
 ### Step-by-step:
 1. Request quotas (do this days in advance)
@@ -185,7 +185,7 @@ Meteorological fields compress differently:
 Cloud wins when:
 - Workloads are bursty (event-driven)
 - Peak capacity >> average capacity
-- Time-to-science matters
+- Time-to-result matters
 
 ---
 
