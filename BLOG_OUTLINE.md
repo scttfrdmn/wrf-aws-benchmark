@@ -214,17 +214,58 @@ Meteorological fields compress differently:
 
 **True TCO:** $2,022,500/year = **$168,500/month**
 
-**But wait - there's more context:**
-- Fixed capacity: ~3,840 cores whether you use them or not
-- Storage: 500 TB fixed, can't easily shrink for cost savings
-- Can't scale beyond 3,840 cores for urgent needs
-- Network: must purchase InfiniBand switches, cables upfront
-- Utilization matters: If cluster runs at 50% utilization, effective cost doubles per job
+**The Capacity Planning Dilemma:**
+
+On-premises requires upfront capacity decisions with no good answers:
+
+**Option A: Size for Regional Only** (~1,920 cores, 10 nodes)
+- Cost: ~$3M capital, $84K/month TCO, $30K/month allocated
+- Can run 2×/day regional forecasts efficiently
+- **Problem:** When severe weather develops, you must STOP regional forecasts to run WoFS
+- Miss tomorrow's regional forecast to handle today's event
+- Can only handle 1 WoFS event at a time
+- If multiple regions have severe weather simultaneously? You choose.
+- **Utilization:** ~60% overall, but 0% when you need surge capacity
+
+**Option B: Size for Regional + 1 WoFS** (~3,840 cores, 20 nodes)
+- Cost: ~$6M capital, $168K/month TCO, $60K/month allocated
+- Can run regional + one WoFS simultaneously
+- **Problem:** WoFS nodes sit idle 90% of the time (only 4 events/month)
+- What if you need 2 WoFS events simultaneously? (Texas AND Oklahoma outbreak)
+- **Utilization:** ~35% overall (WoFS capacity mostly idle)
+
+**Option C: Size for Regional + 4 Concurrent WoFS** (~13,440 cores, 70 nodes)
+- Cost: ~$21M capital, $525K/month TCO, $189K/month allocated
+- Can handle multiple simultaneous severe weather events
+- **Problem:** 75% of cluster capacity sits idle waiting for events that may never happen
+- **Utilization:** ~15% overall (massive idle capacity "just in case")
+
+**The Impossible Choice:**
+- Size too small → miss critical forecast windows during events
+- Size for peak → pay for massive idle capacity
+- No matter what you choose, you're either under-provisioned or over-paying
+- Fixed capacity means you can't run regional + multiple WoFS simultaneously without stopping something
+
+**What AWS Enables:**
+
+No capacity planning dilemma. Period.
+
+- **Routine operations:** 10 nodes for regional (2×/day) = $23K/month
+- **Severe weather day:** Keep regional running (10 nodes) + spin up 2 WoFS domains (16 nodes) = $26K for that month
+- **Outbreak day:** Keep regional running + 4 simultaneous WoFS domains (32 nodes) = $33K for that month
+- **Quiet month:** Just regional = $23K/month
+
+**Total cores available when you need them:** Unlimited (within AWS quotas)
+**Cost for capacity you don't use:** $0
+**Time to add capacity:** 2-3 minutes (instance launch time)
+
+You pay ~$60K on-prem whether it's April (10 severe weather events) or January (zero events). On AWS, you pay $23-35K depending on actual need.
 
 **For this workload specifically:**
 - Running 2×/day regional + 4 WoFS events/month
-- Estimated utilization: ~35% (12-15 hours/day active)
+- On-prem Option B utilization: ~35% (12-15 hours/day active)
 - **Effective monthly cost allocated to this workload:** ~$60,000
+- **But you're locked into that capacity and can't surge for simultaneous events**
 
 #### National HPC Systems (NOAA, NCAR, XSEDE)
 
@@ -268,38 +309,81 @@ National systems appear "free" to researchers with allocations, but:
 
 **For this specific workload** (2×/day regional + 4 WoFS events/month):
 
-| Option | Monthly Cost | What's Included | What's Excluded | Best For |
-|--------|--------------|-----------------|-----------------|----------|
-| **AWS** | **$26,400** | Compute, storage, network, data transfer | Nothing (pay-as-you-go) | Event-driven, variable workloads |
-| **On-Prem (allocated)** | **$60,000** | Compute, storage, network, admin | Power ($15K), cooling ($19K), space ($8K) | Sustained high utilization (>70%) |
-| **On-Prem (true TCO)** | **$168,500** | Everything | Nothing | Institutional view of full cost |
-| **National Systems** | **$0** | Compute, storage, network | Queue wait, no guarantees, competitive allocation | Pre-planned research campaigns |
+| Option | Monthly Cost | Concurrent Regional + WoFS? | Surge Capacity? | What's Included | What's Excluded |
+|--------|--------------|-----------------------------|-----------------|-----------------|-----------------|
+| **AWS** | **$26,400** | ✅ Yes, unlimited | ✅ Yes, 2-3 min | Compute, storage, network, data | Nothing |
+| **On-Prem Option A** | **$30,000** | ❌ No, must stop regional | ❌ No | Compute, storage, network, admin | Power, cooling, space ($15K) |
+| **On-Prem Option B** | **$60,000** | ✅ Yes, 1 WoFS only | ❌ No | Compute, storage, network, admin | Power, cooling, space ($23K) |
+| **On-Prem Option C** | **$189,000** | ✅ Yes, 4 WoFS max | ❌ No, fixed at 4 | Everything | Nothing |
+| **On-Prem B (true TCO)** | **$168,500** | ✅ Yes, 1 WoFS only | ❌ No | Everything | Nothing |
+| **National Systems** | **$0** | ❌ Allocation limits | ❌ Not available | Compute, storage, network | Queue wait, no guarantees |
 
-**Key Insight:** For this event-driven workload at ~35% utilization of a fixed cluster, AWS is **44% cheaper** than on-prem (allocated costs) and **70% cheaper** than on-prem TCO, while providing elasticity and guaranteed availability.
+**Critical Insights:**
+
+1. **On-prem Option A** ($30K): Cheapest on-prem, but **can't run regional and WoFS simultaneously**. Must choose between maintaining routine monitoring or responding to severe weather.
+
+2. **On-prem Option B** ($60K allocated, $168K TCO): Can run regional + one WoFS, but:
+   - 65% of WoFS capacity sits idle most of the time
+   - Can't handle multiple simultaneous severe weather events
+   - Fixed cost regardless of actual severe weather activity
+
+3. **On-prem Option C** ($189K allocated): Can handle 4 concurrent WoFS, but:
+   - 85% of capacity idle most of the time
+   - 7× more expensive than AWS
+   - Still has a ceiling (what about 5 simultaneous events?)
+
+4. **AWS** ($23-35K depending on month):
+   - Always runs regional continuously
+   - Adds WoFS capacity on-demand as needed
+   - No practical limit on simultaneous events
+   - Scales cost with actual severe weather activity
+   - **44% cheaper** than on-prem Option B (most comparable)
+   - **70% cheaper** than on-prem Option B true TCO
+
+**The Real Comparison:**
+- **Active severe weather month** (April, May): AWS $33K vs On-prem $60-189K
+- **Quiet winter month** (January): AWS $23K vs On-prem $60-189K (same fixed cost)
+- **Annual variability:** AWS tracks severe weather seasons; on-prem pays same cost year-round
 
 ### When Each Option Makes Sense
 
 **Choose AWS when:**
-- Workloads are bursty or event-driven
-- You need guaranteed capacity on-demand
-- Peak capacity >> average capacity
+- Workloads are bursty or event-driven **(this is THE killer use case)**
+- You need to run baseline workload + variable surge capacity simultaneously
+- Peak capacity >> average capacity (>2× difference)
 - Time-to-result matters (no queue wait)
+- Can't predict how many simultaneous events you'll need to handle
+- Severe weather follows seasonal patterns (active spring/summer, quiet winter)
 - You want to avoid capital expenditure
 - Team lacks HPC admin expertise
+- **This workload:** Regional + event-driven WoFS is the textbook example
 
 **Choose On-Premises when:**
-- Sustained utilization >70%
-- Long-term multi-year commitment
-- Institution provides facilities/power/cooling
-- Network requirements >200 Gbps
+- Sustained utilization >70% year-round
+- Workload is predictable and constant
+- Can accurately size for peak without over-provisioning
+- Institution fully subsidizes power, cooling, facilities
+- Long-term multi-year commitment with stable funding
+- Network requirements >200 Gbps or specialized hardware
 - Data residency requirements
+- **NOT this workload:** Event-driven surge requirements make on-prem expensive
 
 **Choose National Systems when:**
-- Pre-planned research campaigns
-- Massive scale (>10K cores)
-- Can wait in queues
+- Pre-planned research campaigns scheduled months in advance
+- Massive scale (>10K cores) beyond typical cloud budgets
+- Can wait hours/days in queues
 - Already have allocation
-- Academic research (not operational)
+- Academic research (not time-sensitive operational forecasting)
+- **NOT this workload:** Can't respond to severe weather in <30 minutes via batch queues
+
+**The Bottom Line for Event-Driven Severe Weather:**
+
+On-premises forces you to choose between three bad options:
+1. Under-provision and stop critical forecasts during events
+2. Right-size for average and can't handle multiple simultaneous events
+3. Over-provision massively and waste 85% of capacity waiting for storms
+
+AWS lets you have your cake and eat it too: continuous baseline monitoring + unlimited surge capacity + pay only for what you actually use.
 
 ---
 

@@ -21,6 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fair comparison framework showing what's included/excluded in each option
 - Utilization-adjusted cost analysis for event-driven workloads
 - Analysis of why event-driven severe weather workloads don't fit national systems
+- "Capacity Planning Dilemma" section showing three on-prem sizing scenarios:
+  * Option A: Size for regional only - can't run concurrent WoFS
+  * Option B: Size for regional + 1 WoFS - 65% idle capacity, no surge
+  * Option C: Size for regional + 4 WoFS - 85% idle capacity, 7× cost
+- Detailed comparison showing AWS can run unlimited concurrent workloads
+- Monthly cost variability analysis (active vs quiet severe weather months)
+- Seasonal cost scaling advantage of cloud (AWS tracks weather patterns, on-prem fixed cost)
 
 ### Changed
 - Replaced "time to science" with "time to result" throughout documentation
