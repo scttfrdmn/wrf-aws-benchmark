@@ -1,5 +1,10 @@
 # WRF on AWS: Cost-Effective NWP at Research & Operational Scales
 
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](VERSION)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Changelog](https://img.shields.io/badge/changelog-Keep%20a%20Changelog%20v1.1.0-%23E05735)](CHANGELOG.md)
+[![Semantic Versioning](https://img.shields.io/badge/semver-2.0.0-green.svg)](https://semver.org/)
+
 ## Project Goals
 
 1. **Demonstrate viability**: Show that WRF/WoFS workloads run effectively on AWS at scales used in real research and life-safety operations
@@ -142,6 +147,21 @@ python3 compression/analyze_results.py --output results/
 4. **I/O bandwidth** utilization
 5. **Scaling efficiency** (weak and strong scaling)
 6. **Time to science** (cluster creation → first forecast)
+
+## Versioning
+
+This project follows [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html):
+- **MAJOR** version for incompatible API/workflow changes
+- **MINOR** version for new functionality in a backwards compatible manner
+- **PATCH** version for backwards compatible bug fixes
+
+See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2025 Scott Friedman
 
 ## References
 
